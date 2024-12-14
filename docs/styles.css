@@ -203,3 +203,9 @@ body {
     border-radius: 37% 29% 27% 27% / 28% 25% 41% 37%;
   }
 }
+
+footer {
+	position: absolute; bottom: 0;
+	text-align: center;
+}
+
