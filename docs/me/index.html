@@ -22,13 +22,13 @@
 <script>
     document.documentElement.classList.add("dark", "uk-theme-zinc");
 </script>
+<script src="token.js"></script>
 <script>
-    import { mytoken } from "./token.js";
 
 
     const username = "Wateir"; // This is me
     const headers = {
-      Authorization: mytoken
+    Authorization: config.GITHUB_TOKEN
     };
 
     async function getUserCommitCount(username) {
