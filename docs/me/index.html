@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nombre de commits GitHub</title>
+  <link
+  rel="stylesheet"
+  href="https://unpkg.com/franken-ui@latest/dist/css/core.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/franken-ui@latest/dist/css/utilities.min.css"
+/>
+<script
+  type="module"
+  src="https://unpkg.com/franken-ui@latest/dist/js/core.iife.js"
+></script>
+<script
+  type="module"
+  src="https://unpkg.com/franken-ui@latest/dist/js/icon.iife.js"
+></script>
+<script>
+    document.documentElement.classList.add("dark", "uk-theme-zinc");
+</script>
+<script>
+    import { GITHUB_TOKEN } from "./token.js";
+
+
+    const username = "Wateir"; // This is me
+    const headers = {
+      Authorization: "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"
+    };
+
+    async function getUserCommitCount(username) {
+      let commitCount = 0;
+      try {
+        const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`, { headers });
+        const repos = await reposResponse.json();
+
+        for (const repo of repos) {
+          const repoName = repo.name;
+          const owner = repo.owner.login;
+          let page = 1;
+          let hasMoreCommits = true;
+
+          while (hasMoreCommits) {
+            const commitsResponse = await fetch(
+              `https://api.github.com/repos/${owner}/${repoName}/commits?author=${username}&per_page=100&page=${page}`,
+              { headers }
+            );
+            const commits = await commitsResponse.json();
+
+            if (Array.isArray(commits) && commits.length > 0) {
+              commitCount += commits.length;
+              page++;
+            } else {
+              hasMoreCommits = false;
+            }
+          }
+        }
+
+        return commitCount;
+      } catch (error) {
+        console.error("Erreur lors de la récupération des commits :", error);
+        return null;
+      }
+    }
+
+    // Fonction pour mettre à jour le DOM quand prêt
+    document.addEventListener("DOMContentLoaded", async () => {
+      const commitCountElement = document.getElementById("commit-count");
+      const count = await getUserCommitCount(username);
+      commitCountElement.textContent = count !== null ? count : "Erreur";
+    });
+  </script>
+</head>
+<body class="bg-background font-geist-sans text-foreground antialiased">
+    <div class="p-6 lg:p-10">
+    <div class="space-y-0.5">
+    <div class="flex justify-center gap-x-2">
+    </div>
+
+    <div class="flex items-center space-x-6">
+        <div class="uk-avatar uk-avatar-rounded uk-avatar-bordered w-20 h-20 overflow-hidden">
+        <div class="uk-avatar-image">
+        <img src="asset/wat.png" alt="Avatar" class="w-full h-full rounded-full object-cover" />
+        </div>
+    </div>
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight">Hey, this me <br />Wateir</h1>
+        <p class="text-muted-foreground">
+        Learn More about me
+        </p>
+    </div>
+    </div>
+        <div class="border-border my-6 border-t"></div>
+        <div class="uk-card uk-card-body max-w-sm my-6">
+            <h3 class="uk-card-title">Nombre total de commits sur des repos public de GitHub</h3>
+            <p>Utilisateur : <strong id="username">Wateir</strong></p>
+            <p>Total de commits : <strong id="commit-count">Chargement...</strong></p>
+    </div>
+  
+</body>
+</html>
